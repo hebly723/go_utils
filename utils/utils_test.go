@@ -16,14 +16,14 @@ func TestInit(t *testing.T) {
 		{
 			name: "",
 			args: args{
-				filePath: "../account.yaml",
+				filePath: "../test/account.yaml",
 			},
 			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := InitConfig(tt.args.filePath, map[string]interface{}{}); (err != nil) != tt.wantErr {
+			if err := InitConfig(tt.args.filePath, &map[string]interface{}{}); (err != nil) != tt.wantErr {
 				t.Errorf("Init() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
