@@ -2,7 +2,6 @@ package utils
 
 import (
 	"encoding/json"
-	"log"
 	"strconv"
 )
 
@@ -34,7 +33,6 @@ func NewFormatResponseWithMap(message error, i *map[string]interface{}) string {
 	f.Data = i
 	bs, err := json.Marshal(f)
 	if err != nil {
-		log.Println(f)
 		return "{\"success\":false,\"code\":\"" + strconv.Itoa(ErrJsonMarshalerFailed.code) +
 			"\", \"msg\":\"" + ErrJsonMarshalerFailed.msg + "\"}"
 	}

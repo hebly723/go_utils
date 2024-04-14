@@ -3,14 +3,21 @@ package utils
 import (
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
+
+	"github.com/hebly723/go_utils/clog"
 )
 
 type Request struct {
 	ProxyURL *string
 	Req      *http.Request
+	logger   *clog.Logger
+}
+
+type ExternalAPI interface {
+	Init(string)
+	Request(*http.Header, ...interface{}) (map[string]interface{}, error)
 }
 
 func (r *Request) Send() (map[string]interface{}, error) {
@@ -39,7 +46,9 @@ func (r *Request) Send() (map[string]interface{}, error) {
 
 			result := FormatResponse{}
 			if err := json.Unmarshal(body, &result); err != nil {
-				log.Println(string(body))
+				if r.logger != nil {
+					r.logger.Debug(string(body))
+				}
 				return nil, ErrJsonMarshalerFailed.Wrap(err)
 			}
 
@@ -58,7 +67,9 @@ func (r *Request) Send() (map[string]interface{}, error) {
 
 	result := FormatResponse{}
 	if err := json.Unmarshal(body, &result); err != nil {
-		log.Println(string(body))
+		if r.logger != nil {
+			r.logger.Debug(string(body))
+		}
 		return nil, ErrJsonMarshalerFailed.Wrap(err)
 	}
 

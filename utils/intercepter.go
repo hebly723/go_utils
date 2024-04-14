@@ -3,9 +3,12 @@ package utils
 import (
 	"bytes"
 	"io"
-	"log"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
+
+	"github.com/hebly723/go_utils/clog"
 )
 
 const (
@@ -21,7 +24,8 @@ type ResponseWriter struct {
 }
 
 type printHandler struct {
-	next http.Handler
+	next   http.Handler
+	logger *clog.Logger
 }
 
 func (r *ResponseWriter) Header() http.Header {
@@ -58,15 +62,15 @@ func (p printHandler) handler(w http.ResponseWriter, r *http.Request) {
 		writer: w,
 	}
 	p.next.ServeHTTP(sw, r)
-	log.Printf("\n%v\n"+
-		"#Time:   %v\n"+
-		"#Method: %v\n"+
-		"#URL:    %v\n"+
-		"#Body:   %v\n%v\n"+
-		"#Code:   %v\n"+
-		"#Body:   %v\n%v\n",
-		BEGIN_LINE, time.Since(start),
-		r.Method, r.RequestURI,
-		reqBody, DURATION_LINE,
-		sw.code, sw.response, END_LINE)
+	logStr := strings.Join([]string{
+		BEGIN_LINE,
+		"\n#Time:   ", time.Since(start).String(),
+		"\n#Method: ", r.Method,
+		"\n#URL:    ", r.RequestURI,
+		"\n#Body:   ", reqBody, "\n", DURATION_LINE, "\n",
+		"\n#Code:   ", strconv.Itoa(sw.code),
+		"\n#Body:   ", sw.response, "\n", END_LINE, "\n"}, "")
+	if p.logger != nil {
+		p.logger.Debug(logStr)
+	}
 }
