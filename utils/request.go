@@ -8,19 +8,22 @@ import (
 	"net/url"
 )
 
-var ProxyURL *string
+type Request struct {
+	ProxyURL *string
+	Req      *http.Request
+}
 
-func Send(req *http.Request) (map[string]interface{}, error) {
+func (r *Request) Send() (map[string]interface{}, error) {
 	client := &http.Client{}
-	if ProxyURL != nil {
-		transport, err := constructProxy(ProxyURL)
+	if r.ProxyURL != nil {
+		transport, err := constructProxy(r.ProxyURL)
 		if err != nil {
 			return nil, err
 		}
 		client.Transport = transport
 	}
 
-	resp, err := client.Do(req)
+	resp, err := client.Do(r.Req)
 	if err != nil {
 		return nil, ErrTransmitFailed.Wrap(err)
 	}
